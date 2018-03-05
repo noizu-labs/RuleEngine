@@ -1,4 +1,7 @@
-
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
 
 defmodule Noizu.RuleEngine.Node.EqualsNode do
   @behaviour Noizu.RuleEngine.Behaviour.Node

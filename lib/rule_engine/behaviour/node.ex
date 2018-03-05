@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Behaviour.Node do
   alias Noizu.RuleEngine.Behaviour.Node
   alias Noizu.RuleEngine.Behaviour.Error
