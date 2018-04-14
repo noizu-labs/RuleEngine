@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 if Application.get_env(:noizu_rule_engine, :default_implementation)[:atom_case] != false do
   defimpl Noizu.RuleEngine.ScriptProtocol, for: Atom do
     #-----------------

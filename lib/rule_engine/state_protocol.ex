@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defprotocol Noizu.RuleEngine.StateProtocol do
 
   def setting(entry, setting, context)

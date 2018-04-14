@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
   alias Noizu.RuleEngine.Op.ComparisonOp
   alias Noizu.RuleEngine.Op.ValueOp

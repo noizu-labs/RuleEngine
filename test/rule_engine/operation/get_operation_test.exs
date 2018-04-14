@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Operation.GetOperationTest do
   alias Noizu.RuleEngine.Op.GetOp
   alias Noizu.RuleEngine.State.InlineStateManager

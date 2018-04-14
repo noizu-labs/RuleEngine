@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Operation.XorOperationTest do
   alias Noizu.RuleEngine.Op.XorOp
   alias Noizu.RuleEngine.Op.ValueOp

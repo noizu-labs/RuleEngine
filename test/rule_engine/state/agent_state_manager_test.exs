@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.State.AgentStateManagerTest do
   alias Noizu.RuleEngine.State.AgentStateManager
   alias Noizu.RuleEngine.State.InlineStateManager

@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Operation.AndOperationTest do
   alias Noizu.RuleEngine.Op.AndOp
   alias Noizu.RuleEngine.Op.ValueOp

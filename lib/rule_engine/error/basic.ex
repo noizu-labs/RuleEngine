@@ -1,3 +1,8 @@
+#-------------------------------------------------------------------------------
+# Author: Keith Brings
+# Copyright (C) 2018 Noizu Labs, Inc. All rights reserved.
+#-------------------------------------------------------------------------------
+
 defmodule Noizu.RuleEngine.Error.Basic do
   defexception message: "Basic Exception", code: -1
   def raise(msg \\ "Basic Exception", code \\ -1) do
