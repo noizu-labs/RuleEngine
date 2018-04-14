@@ -67,11 +67,6 @@ defmodule Noizu.RuleEngine.Operation.StrictXorOperationTest do
     assert response == false
   end
 
-
-
-
-
-
   test "Execute! - true (async)" do
     fixture = AgentStateManager.new(@agent_fixture)
     settings = Noizu.RuleEngine.StateProtocol.settings(fixture, @context)
@@ -86,7 +81,7 @@ defmodule Noizu.RuleEngine.Operation.StrictXorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == true
   end
 
@@ -104,7 +99,7 @@ defmodule Noizu.RuleEngine.Operation.StrictXorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == false # @note return type is tricky on non strict xor.
   end
 
@@ -122,7 +117,7 @@ defmodule Noizu.RuleEngine.Operation.StrictXorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == false
   end
 
@@ -140,7 +135,7 @@ defmodule Noizu.RuleEngine.Operation.StrictXorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == false
   end
 

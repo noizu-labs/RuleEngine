@@ -86,7 +86,7 @@ defmodule Noizu.RuleEngine.Operation.XorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == 3.1
   end
 
@@ -104,7 +104,7 @@ defmodule Noizu.RuleEngine.Operation.XorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == nil # @note return type is tricky on non strict xor.
   end
 
@@ -122,7 +122,7 @@ defmodule Noizu.RuleEngine.Operation.XorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == nil
   end
 
@@ -140,7 +140,7 @@ defmodule Noizu.RuleEngine.Operation.XorOperationTest do
       ]
     }
 
-    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, @fixture, @context, options)
+    {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == nil
   end
 

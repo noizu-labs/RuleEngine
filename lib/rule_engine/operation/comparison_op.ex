@@ -69,25 +69,21 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
                 is_tuple(cs) ->
                   {m, f, a} = cs
                   cond do
-                    a == 2 ->
-                      cc = :erlang.apply(m, f, [o, c_o])
-                      c = cc == this.comparison
+                    a == 3 ->
+                      c = :erlang.apply(m, f, [this.comparison, o, c_o])
                       {c, c_o}
 
-                    a == 5 ->
-                      {cc, cc_s} = :erlang.apply(m, f, [o, c_o, state, context, options])
-                      c = cc == this.comparison
+                    a == 6 ->
+                      {c, cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
                       {c, {c_o, cc_s}}
                   end
 
-                is_function(cs, 2) ->
-                  cc = cs.(o, c_o)
-                  c = cc == this.comparison
+                is_function(cs, 3) ->
+                  c = cs.(this.comparison, o, c_o)
                   {c, {c_o, c_s}}
 
-                is_function(cs, 5) ->
-                  {cc, cc_s} = cs.(o, c_o, state, context, options)
-                  c = cc == this.comparison
+                is_function(cs, 6) ->
+                  {c, cc_s} = cs.(this.comparison, o, c_o, state, context, options)
                   {c, {c_o, cc_s}}
                 true ->
                   {false, {o, s}}
@@ -128,25 +124,21 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
                 is_tuple(cs) ->
                   {m, f, a} = cs
                   cond do
-                    a == 2 ->
-                      cc = :erlang.apply(m, f, [o, c_o])
-                      c = cc == this.comparison
+                    a == 3 ->
+                      c = :erlang.apply(m, f, [this.comparison, o, c_o])
                       {c, c_o}
 
-                    a == 5 ->
-                      {cc, cc_s} = :erlang.apply(m, f, [o, c_o, state, context, options])
-                      c = cc == this.comparison
+                    a == 6 ->
+                      {c, cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
                       {c, {c_o, cc_s}}
                   end
 
-                is_function(cs, 2) ->
-                  cc = cs.(o, c_o)
-                  c = cc == this.comparison
+                is_function(cs, 3) ->
+                  c = cs.(this.comparison, o, c_o)
                   {c, {c_o, c_s}}
 
-                is_function(cs, 5) ->
-                  {cc, cc_s} = cs.(o, c_o, state, context, options)
-                  c = cc == this.comparison
+                is_function(cs, 6) ->
+                  {c, cc_s} = cs.(this.comparison, o, c_o, state, context, options)
                   {c, {c_o, cc_s}}
                 true ->
                   {false, {o, s}}
@@ -206,25 +198,21 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
                     is_tuple(cs) ->
                       {m, f, a} = cs
                       cond do
-                        a == 2 ->
-                          cc = :erlang.apply(m, f, [o, c_o])
-                          c = cc == this.comparison
+                        a == 3 ->
+                          c = :erlang.apply(m, f, [this.comparison, o, c_o])
                           {c, c_o}
 
-                        a == 5 ->
-                          {cc, _cc_s} = :erlang.apply(m, f, [o, c_o, state, context, options])
-                          c = cc == this.comparison
+                        a == 6 ->
+                          {c, _cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
                           {c, c_o}
                       end
 
-                    is_function(cs, 2) ->
-                      cc = cs.(o, c_o)
-                      c = cc == this.comparison
+                    is_function(cs, 3) ->
+                      c = cs.(this.comparison, o, c_o)
                       {c, c_o}
 
-                    is_function(cs, 5) ->
-                      {cc, _cc_s} = cs.(o, c_o, state, context, options)
-                      c = cc == this.comparison
+                    is_function(cs, 6) ->
+                      {c, _cc_s} = cs.(this.comparison, o, c_o, state, context, options)
                       {c, c_o}
                   end
                 else
