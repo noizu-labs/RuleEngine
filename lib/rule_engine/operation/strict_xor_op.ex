@@ -12,7 +12,7 @@ defmodule Noizu.RuleEngine.Op.StrictXorOp do
     description: nil,
     identifier: nil,
     arguments: [],
-    settings: [short_circuit?: :auto, async?: :auto, raise_on_timeout?: :auto]
+    settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto]
   ]
 end
 
@@ -29,8 +29,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.StrictXorOp do
   def execute!(this, state, context, options) do
     cond do
       this.settings[:short_circuit?] == :required -> execute!(:short_circuit, this, state, context, options) # Ignore Async settings when short_circuit is mandatory
-      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings][:supports_async?] == true) -> execute!(:async, this, state, context, options)
-      this.settings[:async?] == :required -> raise "[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context)}"
+      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings] && options.settings.supports_async? == true) -> execute!(:async, this, state, context, options)
+      this.settings[:async?] == :required -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context)}", 310)
       Enum.member?([true, :auto, nil], this.settings[:short_circuit?]) -> execute!(:short_circuit, this, state, context, options)
       true -> execute!(:all, this, state, context, options)
     end
@@ -96,7 +96,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.StrictXorOp do
       n_children == 0 -> {false, state}
       true ->
         yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
-        if Enum.member?([true, :required], this.settings[:raise_on_timeout?]) do
+        if Enum.member?([true, :required], this.settings[:throw_on_timeout?]) do
           outcome = this.arguments
                     |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
                     |> Task.yield_many(yield_wait)
@@ -114,7 +114,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.StrictXorOp do
                            end
                          end)
           case outcome do
-            {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> raise "[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}"
+            {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
             [xor] -> {xor, state}
             _ -> {false, state}
           end

@@ -14,7 +14,7 @@ defmodule Noizu.RuleEngine.Op.ComparisonOp do
     identifier: nil,
     arguments: [],
     comparison: :"==",
-    settings: [short_circuit?: :auto, async?: :auto, raise_on_timeout?: :auto, comparison_strategy: :default]
+    settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: :default]
   ]
 end
 
@@ -32,8 +32,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
   def execute!(this, state, context, options) do
     cond do
       this.settings[:short_circuit?] == :required -> execute!(:short_circuit, this, state, context, options) # Ignore Async settings when short_circuit is mandatory
-      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings][:supports_async?] == true) -> execute!(:async, this, state, context, options)
-      this.settings[:async?] == :required -> raise "[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context)}"
+      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings] && options.settings.supports_async? == true) -> execute!(:async, this, state, context, options)
+      this.settings[:async?] == :required -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context)}", 310)
       Enum.member?([true, :auto, nil], this.settings[:short_circuit?]) -> execute!(:short_circuit, this, state, context, options)
       true -> execute!(:all, this, state, context, options)
     end
@@ -186,7 +186,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
 
         case children do
           {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} ->
-              raise "[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}"
+            throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
           [h|t] ->
             cs = this.settings[:comparison_strategy] || :default
             {outcome, _} = Enum.reduce(t, {true, h},

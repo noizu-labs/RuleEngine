@@ -16,7 +16,7 @@ defmodule Noizu.RuleEngine.Op.IfThenOp do
     condition_clause: nil,
     then_clause: nil,
     else_clause: nil,
-    settings: [async?: :auto, raise_on_timeout?: :auto]
+    settings: [async?: :auto, throw_on_timeout?: :auto]
   ]
 end
 
@@ -32,8 +32,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.IfThenOp do
   #-----------------
   def execute!(this, state, context, options) do
     async? = cond do
-      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings][:supports_async?] == true) -> true
-      this.settings[:async?] == :required -> raise "[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context, options)}"
+      Enum.member?([true, :auto, :required], this.settings[:async?]) && (options[:settings] && options.settings.supports_async? == true) -> true
+      this.settings[:async?] == :required -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] Unable to perform required async execute on #{this.__struct__} - #{identifier(this, state, context)}", 310)
       true -> false
     end
 
