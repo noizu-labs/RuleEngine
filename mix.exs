@@ -3,7 +3,7 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   def project do
     [app: :noizu_rule_engine,
-     version: "0.1.0",
+     version: "0.2.0",
      elixir: "~> 1.3",
      package: package(),
      deps: deps(),
