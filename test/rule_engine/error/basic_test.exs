@@ -1,7 +1,7 @@
 defmodule Noizu.RuleEngine.Error.BasicTest do
   alias Noizu.RuleEngine.Error.Basic
   use ExUnit.Case
-  
+
   test "ErrorProtocol - Error Code (Excpetion)" do
     sut = try do
       Basic.raise("ABC", 123)
