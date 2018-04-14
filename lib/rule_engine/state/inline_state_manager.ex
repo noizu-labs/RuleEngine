@@ -1,4 +1,4 @@
-defmodule Noizu.RuleEngine.State.Inline do
+defmodule Noizu.RuleEngine.State.InlineStateManager do
 
   @type t :: %__MODULE__{
                settings: Noizu.RuleEngine.ScriptSettings.t,
@@ -6,10 +6,9 @@ defmodule Noizu.RuleEngine.State.Inline do
                entity_state: %{any => %{}}
              }
 
-  @default_settings %Noizu.RuleEngine.ScriptSettings{
-    async?: false,
-    short_circuit?: true,
-    transactions?: true,
+  @default_settings %Noizu.RuleEngine.StateSettings{
+    supports_async?: false,
+    supports_transactions?: true,
     user_settings: %{}
   }
 
@@ -20,7 +19,7 @@ defmodule Noizu.RuleEngine.State.Inline do
   ]
 end
 
-defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.Inline do
+defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.InlineStateManager do
   #-------------------------
   #
   #-------------------------
@@ -33,7 +32,7 @@ defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.Inline do
   #-------------------------
   def setting(entry, setting, _context) do
     cond do
-      Map.has_key(entry.settings, setting) -> Map.get(entry.settings, setting)
+      Map.has_key?(entry.settings, setting) -> Map.get(entry.settings, setting)
       true -> entry.settings.user_settings[setting]
     end
   end

@@ -1,37 +1,37 @@
 if Application.get_env(:noizu_rule_engine, :default_implementation)[:atom_case] != false do
-  defimpl Noizu.RuleEngine.ScriptProtocol, for: atom do
+  defimpl Noizu.RuleEngine.ScriptProtocol, for: Atom do
     #-----------------
     # execute!/3
     #-----------------
-    def execute!(this, state, context), do: {this, state}
+    def execute!(this, state, _context), do: {this, state}
 
     #-----------------
     # execute!/4
     #-----------------
-    def execute!(this, state, context, options), do: {this, state}
+    def execute!(this, state, _context, _options), do: {this, state}
 
     #---------------------
     # identifier/3
     #---------------------
-    def identifier(node, _state, _context), do: "??ATOM??"
+    def identifier(_this, _state, _context), do: "??ATOM??"
 
     #---------------------
     # identifier/4
     #---------------------
-    def identifier(node, _state, _context, _options), do: "??ATOM??"
+    def identifier(_this, _state, _context, _options), do: "??ATOM??"
 
     #---------------------
     # render/3
     #---------------------
-    def render(node, state, context), do: render(node, state, context, %{})
+    def render(this, state, context), do: render(this, state, context, %{})
 
     #---------------------
     # render/4
     #---------------------
-    def render(node, _state, _context, options) do
+    def render(this, _state, _context, options) do
       depth = options[:depth] || 0
       prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
-      v = "#{inspect node}"
+      v = "#{inspect this}"
       t = Enum.slice(v, 0..32)
       t = if (t != v), do: t <> "...", else: t
       id = "???"
@@ -41,7 +41,7 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:atom_case] 
 end
 
 if Application.get_env(:noizu_rule_engine, :default_implementation)[:list_case] != false do
-  defimpl Noizu.RuleEngine.ScriptProtocol, for: atom do
+  defimpl Noizu.RuleEngine.ScriptProtocol, for: List do
     #-----------------
     # execute!/3
     #-----------------
@@ -71,22 +71,27 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:list_case] 
       yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
 
       outcome = this
-      |> Enum.map(fn(child) -> Task.async(&(Noizu.RuleEngine.ScriptProtocol.execute!(&1, state, context, options))) end)
+      |> Enum.map(fn(child) -> Task.async(fn ->(Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
       |> Task.yield_many(yield_wait)
-      |> Enum.reduce([], fn({task, res}, acc) ->
+      |> Enum.reduce(fn({task, res}) ->
         case res do
           {:ok, {o, _s}} ->
-            case acc do
-              {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _task}}} -> acc
-              _ -> acc ++ [o]
-            end
+            o
           _ ->
             Task.shutdown(task, yield_wait)
             {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}
         end
       end)
-      case outcome do
-        {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> raise "[ScriptError] - #{identifier(this)} Execute Child Task Failed to Complete #{inspect task}"
+
+      errors = Enum.filter(outcome, fn(x) ->
+        case x do
+          {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _task}}} -> true
+          _ -> false
+        end
+      end)
+
+      case errors do
+        [{:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}|_t] -> raise "[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}"
         _ -> {outcome, state}
       end
     end
@@ -94,22 +99,22 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:list_case] 
     #---------------------
     # identifier/3
     #---------------------
-    def identifier(node, _state, _context), do: "[LIST(#{length(node)})]"
+    def identifier(this, _state, _context), do: "[LIST(#{length(this)})]"
 
     #---------------------
     # identifier/4
     #---------------------
-    def identifier(node, _state, _context, _options), do: "[LIST(#{length(node)})]"
+    def identifier(this, _state, _context, _options), do: "[LIST(#{length(this)})]"
 
     #---------------------
     # render/3
     #---------------------
-    def render(node, state, context), do: render(node, state, context, %{})
+    def render(this, state, context), do: render(this, state, context, %{})
 
     #---------------------
     # render/4
     #---------------------
-    def render(children, _state, _context, options) do
+    def render(children, state, context, options) do
       depth = options[:depth] || 0
       prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
       options_b = put_in(options, [:depth], depth + 1)
@@ -124,35 +129,35 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:any_case] !
     #-----------------
     # execute!/3
     #-----------------
-    def execute!(this, state, context), do: {this, state}
+    def execute!(this, state, _context), do: {this, state}
 
     #-----------------
     # execute!/4
     #-----------------
-    def execute!(this, state, context, options), do: {this, state}
+    def execute!(this, state, _context, _options), do: {this, state}
 
     #---------------------
     # identifier/3
     #---------------------
-    def identifier(node, _state, _context), do: "???"
+    def identifier(_this, _state, _context), do: "???"
 
     #---------------------
     # identifier/4
     #---------------------
-    def identifier(node, _state, _context, _options), do: "???"
+    def identifier(_this, _state, _context, _options), do: "???"
 
     #---------------------
     # render/3
     #---------------------
-    def render(node, state, context), do: render(node, state, context, %{})
+    def render(this, state, context), do: render(this, state, context, %{})
 
     #---------------------
     # render/4
     #---------------------
-    def render(node, _state, _context, options) do
+    def render(this, _state, _context, options) do
       depth = options[:depth] || 0
       prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
-      v = "#{inspect node}"
+      v = "#{inspect this}"
       t = Enum.slice(v, 0..32)
       t = if (t != v), do: t <> "...", else: t
       id = "???"

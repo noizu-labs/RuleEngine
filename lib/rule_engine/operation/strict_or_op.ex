@@ -1,4 +1,4 @@
-defmodule Noizu.RuleEngine.Op.OrOp do
+defmodule Noizu.RuleEngine.Op.StrictOrOp do
   @type t :: %__MODULE__{
                name: String.t | nil,
                description: String.t | nil,
@@ -16,7 +16,7 @@ defmodule Noizu.RuleEngine.Op.OrOp do
   ]
 end
 
-defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
+defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.StrictOrOp do
   alias Noizu.RuleEngine.Helper
   #-----------------
   # execute!/3
@@ -73,8 +73,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
         yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
         if Enum.member?([true, :required], this.settings[:raise_on_timeout?]) do
           outcome = this.arguments
-                    |> Enum.map(fn(child) -> Task.async(&(Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options))) end)
-                    |> Task.yield_mand(yield_wait)
+                    |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
+                    |> Task.yield_many(yield_wait)
                     |> Enum.reduce(false,
                          fn({task, res}, acc) ->
                            case res do
@@ -90,13 +90,13 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
                          end)
 
           case outcome do
-            {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> raise "[ScriptError] - #{identifier(this)} Execute Child Task Failed to Complete #{inspect task}"
+            {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> raise "[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}"
             _ -> {outcome, state}
           end
         else
           outcome = this.arguments
-                    |> Enum.map(fn(child) -> Task.async(&(Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options))) end)
-                    |> Task.yield_mand(yield_wait)
+                    |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
+                    |> Task.yield_many(yield_wait)
                     |> Enum.reduce(false,
                          fn({task, res}, acc) ->
                            case res do
@@ -114,20 +114,20 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
   #---------------------
   # identifier/3
   #---------------------
-  def identifier(node, _state, _context), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context), do: Helper.identifier(this)
 
   #---------------------
   # identifier/4
   #---------------------
-  def identifier(node, _state, _context, _options), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context, _options), do: Helper.identifier(this)
 
   #---------------------
   # render/3
   #---------------------
-  def render(node, state, context), do: Helper.render_arg_list("[STRICT_OR]", identifier(node), node.arguments || [], state, context, %{})
+  def render(this, state, context), do: Helper.render_arg_list("[STRICT_OR]", identifier(this, state, context), this.arguments || [], state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(node, state, context, options), do: Helper.render_arg_list("[STRICT_OR]", identifier(node), node.arguments || [], state, context, options)
+  def render(this, state, context, options), do: Helper.render_arg_list("[STRICT_OR]", identifier(this, state, context, options), this.arguments || [], state, context, options)
 end

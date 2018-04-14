@@ -1,4 +1,4 @@
-defmodule Noizu.RuleEngine.Script.Helper do
+defmodule Noizu.RuleEngine.Helper do
   def identifier(node) do
     case node.identifier do
       v when is_bitstring(v) -> v

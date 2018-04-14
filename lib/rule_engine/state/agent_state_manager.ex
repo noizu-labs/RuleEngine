@@ -1,4 +1,4 @@
-defmodule Noizu.RuleEngine.State.Agent do
+defmodule Noizu.RuleEngine.State.AgentStateManager do
   @type t :: %__MODULE__{
                 agent: nil, # process
              }
@@ -8,7 +8,7 @@ defmodule Noizu.RuleEngine.State.Agent do
   ]
 end
 
-defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.Agent do
+defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.AgentStateManager do
   #-------------------------
   #
   #-------------------------

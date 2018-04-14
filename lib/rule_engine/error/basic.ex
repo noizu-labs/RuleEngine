@@ -22,7 +22,7 @@ defimpl Noizu.RuleEngine.ErrorProtocol, for: Noizu.RuleEngine.Error.Basic do
     error.code
   end
 
-  def message(error, options) do
+  def message(error, _options) do
     error.msg
   end
 end

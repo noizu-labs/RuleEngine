@@ -1,9 +1,9 @@
-defmodule Noizu.RuleEngine.Op.AndOp do
+defmodule Noizu.RuleEngine.Op.ValueOp do
   @type t :: %__MODULE__{
     name: String.t | nil,
     description: String.t | nil,
     identifier: String.t | list | tuple, # Materialized Path.
-    value: v,
+    value: any,
   }
 
   defstruct [
@@ -14,7 +14,7 @@ defmodule Noizu.RuleEngine.Op.AndOp do
   ]
 end
 
-defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.AndOp do
+defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ValueOp do
   alias Noizu.RuleEngine.Helper
   #-----------------
   # execute!/3
@@ -31,26 +31,26 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.AndOp do
   #---------------------
   # identifier/3
   #---------------------
-  def identifier(node, _state, _context), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context), do: Helper.identifier(this)
 
   #---------------------
   # identifier/4
   #---------------------
-  def identifier(node, _state, _context, _options), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context, _options), do: Helper.identifier(this)
 
   #---------------------
   # render/3
   #---------------------
-  def render(node, state, context), do: render(node, state, context, %{})
+  def render(this, state, context), do: render(this, state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(node, state, context, options) do
+  def render(this, state, context, options) do
     depth = options[:depth] || 0
     prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
-    id = identifier(node, state, context, options)
-    v = "#{inspect node.value}"
+    id = identifier(this, state, context, options)
+    v = "#{inspect this.value}"
     t = Enum.slice(v, 0..32)
     t = if (t != v), do: t <> "...", else: t
     "#{prefix}#{id} [VALUE #{t}]\n"

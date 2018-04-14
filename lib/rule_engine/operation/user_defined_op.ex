@@ -12,7 +12,7 @@ defmodule Noizu.RuleEngine.Op.UserDefinedOp do
     description: nil,
     identifier: nil,
     user_defined: nil,
-    arguments: list,
+    arguments: [],
   ]
 end
 
@@ -42,20 +42,20 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.UserDefinedOp 
   #---------------------
   # identifier/3
   #---------------------
-  def identifier(node, _state, _context), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context), do: Helper.identifier(this)
 
   #---------------------
   # identifier/4
   #---------------------
-  def identifier(node, _state, _context, _options), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context, _options), do: Helper.identifier(this)
 
   #---------------------
   # render/3
   #---------------------
-  def render(node, state, context), do: Helper.render_arg_list("[USER_DEFINED #{inspect node.name || node.user_defined}]", identifier(node), node.arguments || [], state, context, %{})
+  def render(this, state, context), do: Helper.render_arg_list("[USER_DEFINED #{inspect this.name || this.user_defined}]", identifier(this, state, context), this.arguments || [], state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(node, state, context, options), do: Helper.render_arg_list("[USER_DEFINED #{inspect node.name || node.user_defined}]", identifier(node), node.arguments || [], state, context, options)
+  def render(this, state, context, options), do: Helper.render_arg_list("[USER_DEFINED #{inspect this.name || this.user_defined}]", identifier(this, state, context, options), this.arguments || [], state, context, options)
 end

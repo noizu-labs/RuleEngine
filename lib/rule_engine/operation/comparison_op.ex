@@ -13,6 +13,7 @@ defmodule Noizu.RuleEngine.Op.ComparisonOp do
     description: nil,
     identifier: nil,
     arguments: [],
+    comparison: :"==",
     settings: [short_circuit?: :auto, async?: :auto, raise_on_timeout?: :auto, comparison_strategy: :default]
   ]
 end
@@ -167,8 +168,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
       true ->
         yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
         children = this.arguments
-                   |> Enum.map(fn(child) -> Task.async(&(Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options))) end)
-                   |> Task.yield_mand(yield_wait)
+                   |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
+                   |> Task.yield_many(yield_wait)
                    |> Enum.reduce([],
                         fn({task, res}, acc) ->
                           case res do
@@ -185,7 +186,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
 
         case children do
           {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} ->
-              raise "[ScriptError] - #{identifier(this)} Execute Child Task Failed to Complete #{inspect task}"
+              raise "[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}"
           [h|t] ->
             cs = this.settings[:comparison_strategy] || :default
             {outcome, _} = Enum.reduce(t, {true, h},
@@ -239,20 +240,20 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
   #---------------------
   # identifier/3
   #---------------------
-  def identifier(node, _state, _context), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context), do: Helper.identifier(this)
 
   #---------------------
   # identifier/4
   #---------------------
-  def identifier(node, _state, _context, _options), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context, _options), do: Helper.identifier(this)
 
   #---------------------
   # render/3
   #---------------------
-  def render(node, state, context), do: Helper.render_arg_list("[CMP #{node.comparison}]", identifier(node), node.arguments || [], state, context, %{})
+  def render(this, state, context), do: Helper.render_arg_list("[CMP #{this.comparison}]", identifier(this, state, context), this.arguments || [], state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(node, state, context, options), do: Helper.render_arg_list("[CMP #{node.comparison}]", identifier(node), node.arguments || [], state, context, options)
+  def render(this, state, context, options), do: Helper.render_arg_list("[CMP #{this.comparison}]", identifier(this, state, context, options), this.arguments || [], state, context, options)
 end

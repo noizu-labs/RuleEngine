@@ -37,25 +37,25 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.GetOp do
   #---------------------
   # identifier/3
   #---------------------
-  def identifier(node, _state, _context), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context), do: Helper.identifier(this)
 
   #---------------------
   # identifier/4
   #---------------------
-  def identifier(node, _state, _context, _options), do: Noizu.RuleEngine.Script.Helper.identifier(node)
+  def identifier(this, _state, _context, _options), do: Helper.identifier(this)
 
   #---------------------
   # render/3
   #---------------------
-  def render(node, state, context), do: render(node, state, context, %{})
+  def render(this, state, context), do: render(this, state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(node, state, context, options) do
+  def render(this, state, context, options) do
     depth = options[:depth] || 0
     prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
-    id = identifier(node, state, context, options)
-    "#{prefix}#{id} [GET #{inspect node.entity}.#{node.field}]\n"
+    id = identifier(this, state, context, options)
+    "#{prefix}#{id} [GET #{inspect this.entity}.#{this.field}]\n"
   end
 end
