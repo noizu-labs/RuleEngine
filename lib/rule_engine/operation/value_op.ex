@@ -51,7 +51,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ValueOp do
     prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
     id = identifier(this, state, context, options)
     v = "#{inspect this.value}"
-    t = Enum.slice(v, 0..32)
+    t = String.slice(v, 0..32)
     t = if (t != v), do: t <> "...", else: t
     "#{prefix}#{id} [VALUE #{t}]\n"
   end

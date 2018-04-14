@@ -124,10 +124,10 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.StrictAndOp do
   #---------------------
   # render/3
   #---------------------
-  def render(this, state, context), do: Helper.render_arg_list("[STRICT_AND]", identifier(this, state, context), this.arguments || [], state, context, %{})
+  def render(this, state, context), do: Helper.render_arg_list("STRICT_AND", identifier(this, state, context), this.arguments || [], state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(this, state, context, options), do: Helper.render_arg_list("[STRICT_AND]", identifier(this, state, context, options), this.arguments || [], state, context, options)
+  def render(this, state, context, options), do: Helper.render_arg_list("STRICT_AND", identifier(this, state, context, options), this.arguments || [], state, context, options)
 end

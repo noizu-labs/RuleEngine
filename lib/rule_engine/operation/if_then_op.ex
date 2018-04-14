@@ -72,10 +72,8 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.IfThenOp do
       """
       #{prefix}#{id} [if]
       #{prefix} (CONDITION CLAUSE)
-      #{Noizu.RuleEngine.ScriptProtocol.render(this.condition_clause, state, context, options_b)}
-      #{prefix} (THEN CLAUSE)
-      #{Noizu.RuleEngine.ScriptProtocol.render(this.then_clause, state, context, options_b)}
-      #{prefix} (ELSE CLAUSE)
+      #{Noizu.RuleEngine.ScriptProtocol.render(this.condition_clause, state, context, options_b)}#{prefix} (THEN CLAUSE)
+      #{Noizu.RuleEngine.ScriptProtocol.render(this.then_clause, state, context, options_b)}#{prefix} (ELSE CLAUSE)
       #{Noizu.RuleEngine.ScriptProtocol.render(this.else_clause, state, context, options_b)}
       """
   end

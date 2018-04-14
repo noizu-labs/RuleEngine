@@ -32,7 +32,7 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:atom_case] 
       depth = options[:depth] || 0
       prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
       v = "#{inspect this}"
-      t = Enum.slice(v, 0..32)
+      t = String.slice(v, 0..32)
       t = if (t != v), do: t <> "...", else: t
       id = "???"
       "#{prefix}#{id} [ATOM #{inspect t}]\n"
@@ -158,7 +158,7 @@ if Application.get_env(:noizu_rule_engine, :default_implementation)[:any_case] !
       depth = options[:depth] || 0
       prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
       v = "#{inspect this}"
-      t = Enum.slice(v, 0..32)
+      t = String.slice(v, 0..32)
       t = if (t != v), do: t <> "...", else: t
       id = "???"
       "#{prefix}#{id} [ANY #{inspect t}]\n"

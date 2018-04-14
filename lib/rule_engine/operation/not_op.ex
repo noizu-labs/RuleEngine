@@ -42,10 +42,10 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.NotOp do
   #---------------------
   # render/3
   #---------------------
-  def render(this, state, context), do: Helper.render_arg_list("[NOT]", identifier(this, state, context), [this.argument], state, context, %{})
+  def render(this, state, context), do: Helper.render_arg_list("NOT", identifier(this, state, context), [this.argument], state, context, %{})
 
   #---------------------
   # render/4
   #---------------------
-  def render(this, state, context, options), do: Helper.render_arg_list("[NOT]", identifier(this, state, context, options), [this.argument], state, context, options)
+  def render(this, state, context, options), do: Helper.render_arg_list("NOT", identifier(this, state, context, options), [this.argument], state, context, options)
 end

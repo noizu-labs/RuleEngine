@@ -13,6 +13,6 @@ defmodule Noizu.RuleEngine.Helper do
     prefix = (depth == 0) && (">> ") || (String.duplicate(" ", ((depth - 1) * 4) + 3) <> "|-- ")
     options_b = put_in(options, [:depth], depth + 1)
     r = Enum.map(children, &(Noizu.RuleEngine.ScriptProtocol.render(&1, state, context, options_b)))
-    "#{prefix}#{identifier} [#{tag}] (#{length(children)})\n" ++ Enum.join(r, "\n")
+    "#{prefix}#{identifier} [#{tag}] (#{length(children)})\n" <> Enum.join(r, "")
   end
 end
