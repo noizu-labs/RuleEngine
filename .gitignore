@@ -1,2 +1,5 @@
 deps
 _build
+.idea/
+noizu_rule_engine.iml
+projectFilesBackup/
