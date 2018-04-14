@@ -7,5 +7,7 @@ defprotocol Noizu.RuleEngine.ErrorProtocol do
   @doc """
     Retrieve Error Message
   """
+  def message(error)
   def message(error, options)
+
 end
