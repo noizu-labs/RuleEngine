@@ -6,6 +6,11 @@ defmodule Noizu.RuleEngine.State.AgentStateManager do
   defstruct [
     agent: nil,
   ]
+
+  def new(inner) do
+    {:ok, p} = Agent.start_link fn -> inner end
+    %__MODULE__{agent: p}
+  end
 end
 
 defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.AgentStateManager do
@@ -39,13 +44,13 @@ defimpl Noizu.RuleEngine.StateProtocol, for: Noizu.RuleEngine.State.AgentStateMa
   #
   #-------------------------
   def get!(entry, field, context) do
-    {Agent.get(entry.agent, &(Noizu.RuleEngine.StateProtocol.get!(&1, field, context))), entry}
+    {Agent.get(entry.agent, &(Noizu.RuleEngine.StateProtocol.get!(&1, field, context) |> elem(0) )), entry}
   end
 
   #-------------------------
   #
   #-------------------------
   def get!(entry, entity, field, context) do
-    {Agent.get(entry.agent, &(Noizu.RuleEngine.StateProtocol.get!(&1, entity, field, context))), entry}
+    {Agent.get(entry.agent, &(Noizu.RuleEngine.StateProtocol.get!(&1, entity, field, context) |> elem(0) )), entry}
   end
 end
