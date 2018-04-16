@@ -32,7 +32,8 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
     script = %ComparisonOp{
       identifier: "1",
       comparison: :"==",
-      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: comparison_strategy],
+      comparison_strategy: comparison_strategy,
+      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto],
       arguments: [
         %ValueOp{identifier: "1.1", value: [1, 5]},
         %ValueOp{identifier: "1.2", value: [6, 5]},
@@ -47,7 +48,8 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
     script = %ComparisonOp{
       identifier: "1",
       comparison: :"<",
-      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: comparison_strategy],
+      comparison_strategy: comparison_strategy,
+      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto],
       arguments: [
         %ValueOp{identifier: "1.1", value: [1, 1]},
         %ValueOp{identifier: "1.2", value: [6, 2]},
@@ -77,7 +79,8 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
     script = %ComparisonOp{
       identifier: "1",
       comparison: :"==",
-      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: comparison_strategy],
+      comparison_strategy: comparison_strategy,
+      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto],
       arguments: [
         %ValueOp{identifier: "1.1", value: [1, 5]},
         %ValueOp{identifier: "1.2", value: [6, 5]},
@@ -92,7 +95,8 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
     script = %ComparisonOp{
       identifier: "1",
       comparison: :"<",
-      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: comparison_strategy],
+      comparison_strategy: comparison_strategy,
+      settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto],
       arguments: [
         %ValueOp{identifier: "1.1", value: [1, 1]},
         %ValueOp{identifier: "1.2", value: [6, 2]},
@@ -104,14 +108,10 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
     assert response == true
   end
 
-
-
   test "Execute! == (async)" do
     fixture = AgentStateManager.new(@agent_fixture)
     settings = Noizu.RuleEngine.StateProtocol.settings(fixture, @context)
     options = %{timeout: 250, settings: settings, throw_on_timeout?: true}
-
-
     script = %ComparisonOp{
       identifier: "1",
       comparison: :"==",
@@ -121,13 +121,9 @@ defmodule Noizu.RuleEngine.Operation.ComparisonOperationTest do
         %ValueOp{identifier: "1.3", value: 5.0},
       ]
     }
-
     {response, _state} = Noizu.RuleEngine.ScriptProtocol.execute!(script, fixture, @context, options)
     assert response == true
   end
-
-
-
 
   test "Execute! == (true)" do
     script = %ComparisonOp{

@@ -10,6 +10,7 @@ defmodule Noizu.RuleEngine.Op.ComparisonOp do
     identifier: String.t | list | tuple, # Materialized Path.
     arguments: list,
     comparison: :"==" | :"<>" | :"<=" | :">=" | :"<" | :">",
+    comparison_strategy: any,
     settings: Keyword.t,
   }
 
@@ -19,7 +20,8 @@ defmodule Noizu.RuleEngine.Op.ComparisonOp do
     identifier: nil,
     arguments: [],
     comparison: :"==",
-    settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto, comparison_strategy: :default]
+    comparison_strategy: :default,
+    settings: [short_circuit?: :auto, async?: :auto, throw_on_timeout?: :auto]
   ]
 end
 
@@ -44,55 +46,47 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
     end
   end
 
+  def perform_comparison(left_arg, right_arg, this, state, context, options) do
+    cs = this.comparison_strategy || :default
+    cond do
+      cs == :default ->
+        c = case this.comparison do
+          :"==" -> left_arg == right_arg
+          :"<>" -> left_arg != right_arg
+          :"<" -> left_arg < right_arg
+          :">" -> left_arg > right_arg
+          :"<=" -> left_arg <= right_arg
+          :">=" -> left_arg >= right_arg
+        end
+        {c, nil}
+      match?({_,_,3}, cs) ->
+        {m, f, 3} = cs
+        {:erlang.apply(m, f, [this.comparison, left_arg, right_arg]), nil}
+      match?({_,_,6}, cs) ->
+        {m, f, 6} = cs
+        :erlang.apply(m, f, [this.comparison, left_arg, right_arg, state, context, options])
+      is_function(cs, 3) -> {cs.(this.comparison, left_arg, right_arg), nil}
+      is_function(cs, 6) -> cs.(this.comparison, left_arg, right_arg, state, context, options)
+      true -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Invalid comparison strategy #{inspect cs}", 404)
+    end
+  end
+
   #-----------------
   # execute!/5
   #-----------------
   def execute!(:short_circuit, this, state, context, options) do
-    n_children = length(this.arguments || [])
     cond do
-      n_children < 2 -> {false, state}
+      length(this.arguments || []) < 2 -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} ComparisonOp requires at least 2 arguments", 311)
       true ->
         [h|t] = this.arguments
         p = Noizu.RuleEngine.ScriptProtocol.execute!(h, state, context, options)
-        cs = this.settings[:comparison_strategy] || :default
+        cs = this.comparison_strategy || :default
         {sentinel, {_o, updated_state}} = Enum.reduce(t, {true, p},
           fn(child, {sentinel, {o, s}}) ->
             if sentinel do
               {c_o, c_s} = Noizu.RuleEngine.ScriptProtocol.execute!(child, s, context, options)
-              cond do
-                cs == :default ->
-                    c = case this.comparison do
-                      :"==" -> o == c_o
-                      :"<>" -> o != c_o
-                      :"<" -> o < c_o
-                      :">" -> o > c_o
-                      :"<=" -> o <= c_o
-                      :">=" -> o >= c_o
-                    end
-                    {c, {c_o, c_s}}
-
-                is_tuple(cs) ->
-                  {m, f, a} = cs
-                  cond do
-                    a == 3 ->
-                      c = :erlang.apply(m, f, [this.comparison, o, c_o])
-                      {c, c_o}
-
-                    a == 6 ->
-                      {c, cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
-                      {c, {c_o, cc_s}}
-                  end
-
-                is_function(cs, 3) ->
-                  c = cs.(this.comparison, o, c_o)
-                  {c, {c_o, c_s}}
-
-                is_function(cs, 6) ->
-                  {c, cc_s} = cs.(this.comparison, o, c_o, state, context, options)
-                  {c, {c_o, cc_s}}
-                true ->
-                  {false, {o, s}}
-              end
+              {c, s} = perform_comparison(o, c_o, this, c_s, context, options)
+              {c, {c_o, s || c_s}}
             else
               {sentinel, {o, s}}
             end
@@ -103,51 +97,18 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
   end
 
   def execute!(:all, this, state, context, options) do
-    n_children = length(this.arguments || [])
     cond do
-      n_children < 2 -> {false, state}
+      length(this.arguments || []) < 2 -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} ComparisonOp requires at least 2 arguments", 311)
       true ->
         [h|t] = this.arguments
         p = Noizu.RuleEngine.ScriptProtocol.execute!(h, state, context, options)
-        cs = this.settings[:comparison_strategy] || :default
+        cs = this.comparison_strategy || :default
         {sentinel, {_o, updated_state}} = Enum.reduce(t, {true, p},
           fn(child, {sentinel, {o, s}}) ->
             if sentinel do
               {c_o, c_s} = Noizu.RuleEngine.ScriptProtocol.execute!(child, s, context, options)
-              cond do
-                cs == :default ->
-                  c = case this.comparison do
-                    :"==" -> o == c_o
-                    :"<>" -> o != c_o
-                    :"<" -> o < c_o
-                    :">" -> o > c_o
-                    :"<=" -> o <= c_o
-                    :">=" -> o >= c_o
-                  end
-                  {c, {c_o, c_s}}
-
-                is_tuple(cs) ->
-                  {m, f, a} = cs
-                  cond do
-                    a == 3 ->
-                      c = :erlang.apply(m, f, [this.comparison, o, c_o])
-                      {c, c_o}
-
-                    a == 6 ->
-                      {c, cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
-                      {c, {c_o, cc_s}}
-                  end
-
-                is_function(cs, 3) ->
-                  c = cs.(this.comparison, o, c_o)
-                  {c, {c_o, c_s}}
-
-                is_function(cs, 6) ->
-                  {c, cc_s} = cs.(this.comparison, o, c_o, state, context, options)
-                  {c, {c_o, cc_s}}
-                true ->
-                  {false, {o, s}}
-              end
+              {c, s} = perform_comparison(o, c_o, this, c_s, context, options)
+              {c, {c_o, s || c_s}}
             else
               {_, c_s} = Noizu.RuleEngine.ScriptProtocol.execute!(child, s, context, options)
               {sentinel, {o, c_s}}
@@ -159,74 +120,39 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
   end
 
   def execute!(:async, this, state, context, options) do
-    n_children = length(this.arguments || [])
     cond do
-      n_children < 2 -> {false, state}
+      length(this.arguments || []) < 2 -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} ComparisonOp requires at least 2 arguments", 311)
       true ->
         yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
-        children = this.arguments
-                   |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
-                   |> Task.yield_many(yield_wait)
-                   |> Enum.reduce([],
-                        fn({task, res}, acc) ->
-                          case res do
-                            {:ok, {o, _s}} ->
-                              case acc do
-                                {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _task}}} -> acc
-                                _ -> acc ++ [o]
-                              end
-                            _ ->
-                              Task.shutdown(task, yield_wait)
-                              {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}
-                          end
-                        end)
+        [first_arg|remaining_args] = this.arguments
+                                     |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
+                                     |> Task.yield_many(yield_wait)
+                                     |> Enum.map(
+                                          fn({task, res}) ->
+                                            case res do
+                                              {:ok, {o, _s}} -> o
+                                              _ ->
+                                                Task.shutdown(task, yield_wait)
+                                                {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}
+                                            end
+                                          end)
 
-        case children do
-          {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} ->
-            throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
-          [h|t] ->
-            cs = this.settings[:comparison_strategy] || :default
-            {outcome, _} = Enum.reduce(t, {true, h},
-              fn(c_o, {sentinel, o}) ->
-                if sentinel do
-                  cond do
-                    cs == :default ->
-                      c = case this.comparison do
-                        :"==" -> o == c_o
-                        :"<>" -> o != c_o
-                        :"<" -> o < c_o
-                        :">" -> o > c_o
-                        :"<=" -> o <= c_o
-                        :">=" -> o >= c_o
-                      end
-                      {c, c_o}
-                    is_tuple(cs) ->
-                      {m, f, a} = cs
-                      cond do
-                        a == 3 ->
-                          c = :erlang.apply(m, f, [this.comparison, o, c_o])
-                          {c, c_o}
-
-                        a == 6 ->
-                          {c, _cc_s} = :erlang.apply(m, f, [this.comparison, o, c_o, state, context, options])
-                          {c, c_o}
-                      end
-
-                    is_function(cs, 3) ->
-                      c = cs.(this.comparison, o, c_o)
-                      {c, c_o}
-
-                    is_function(cs, 6) ->
-                      {c, _cc_s} = cs.(this.comparison, o, c_o, state, context, options)
-                      {c, c_o}
-                  end
-                else
-                  {sentinel, o}
-                end
-              end
-            )
-            {outcome, state}
+        if match?({:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _}}}, first_arg) do
+          {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} = first_arg
+          throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
         end
+
+        {product, _} = Enum.reduce(remaining_args || [], {true, first_arg},
+          fn(right_arg, {product, left_arg}) ->
+            cond do
+              match?({:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _}}}, right_arg) ->
+                {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} = right_arg
+                throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
+              product -> {elem(perform_comparison(left_arg, right_arg, this, state, context, options), 0), right_arg}
+              true -> {product, nil}
+            end
+          end)
+        {product, state}
     end
   end
 

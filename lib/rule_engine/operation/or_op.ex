@@ -75,29 +75,29 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
       true ->
         yield_wait = this.settings[:timeout] || options[:timeout] || 15_000
         if Enum.member?([true, :required], this.settings[:throw_on_timeout?]) do
-          outcome = this.arguments
-                    |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
-                    |> Task.yield_many(yield_wait)
-                    |> Enum.reduce(nil,
-                         fn({task, res}, acc) ->
-                           case res do
-                             {:ok, {o, _s}} ->
-                               case acc do
-                                 {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _task}}} -> acc
-                                 _ -> acc || o
-                               end
-                             _ ->
-                               Task.shutdown(task, yield_wait)
-                               {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}
-                           end
-                         end)
-
-          case outcome do
-            {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} -> throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
-            _ -> {outcome, state}
-          end
+          v = this.arguments
+              |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
+              |> Task.yield_many(yield_wait)
+              |> Enum.map(
+                   fn({task, res}) ->
+                     case res do
+                       {:ok, {o, _s}} -> o
+                       _ ->
+                         Task.shutdown(task, yield_wait)
+                         {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}}
+                     end
+                   end)
+              |> Enum.reduce(nil,
+                   fn(right_arg, left_arg) ->
+                     if match?({:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, _}}}, right_arg) do
+                       {:error, {Noizu.RuleEngine.ScriptProtocol, {:timeout, task}}} = right_arg
+                       throw Noizu.RuleEngine.Error.Basic.new("[ScriptError] - #{identifier(this, state, context, options)} Execute Child Task Failed to Complete #{inspect task}", 404)
+                     end
+                     left_arg || right_arg
+                   end)
+          {v, state}
         else
-          outcome = this.arguments
+          v = this.arguments
                     |> Enum.map(fn(child) -> Task.async(fn -> (Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)) end) end)
                     |> Task.yield_many(yield_wait)
                     |> Enum.reduce(nil,
@@ -109,7 +109,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.OrOp do
                                acc
                            end
                          end)
-          {outcome, state}
+          {v, state}
         end
     end
   end
