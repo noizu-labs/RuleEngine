@@ -33,7 +33,7 @@ defmodule Noizu.RuleEngine.Mixfile do
     [
       {:ex_doc, "~> 0.16.2", only: [:dev], optional: true}, # Documentation Provider
       {:markdown, github: "devinus/markdown", only: [:dev], optional: true}, # Markdown processor for ex_doc
-      {:noizu_core, github: "noizu/ElixirCore", tag: "1.0.4", optional: true},
+      {:noizu_core, github: "noizu/ElixirCore", tag: "1.0.11", optional: true},
     ]
   end # end deps
 
