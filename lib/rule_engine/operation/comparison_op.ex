@@ -80,7 +80,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
       true ->
         [h|t] = this.arguments
         p = Noizu.RuleEngine.ScriptProtocol.execute!(h, state, context, options)
-        cs = this.comparison_strategy || :default
+        # cs = this.comparison_strategy || :default
         {sentinel, {_o, updated_state}} = Enum.reduce(t, {true, p},
           fn(child, {sentinel, {o, s}}) ->
             if sentinel do
@@ -102,7 +102,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ComparisonOp d
       true ->
         [h|t] = this.arguments
         p = Noizu.RuleEngine.ScriptProtocol.execute!(h, state, context, options)
-        cs = this.comparison_strategy || :default
+        #cs = this.comparison_strategy || :default
         {sentinel, {_o, updated_state}} = Enum.reduce(t, {true, p},
           fn(child, {sentinel, {o, s}}) ->
             if sentinel do

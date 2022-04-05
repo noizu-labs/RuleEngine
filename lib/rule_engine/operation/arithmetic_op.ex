@@ -74,7 +74,7 @@ defimpl Noizu.RuleEngine.ScriptProtocol, for: Noizu.RuleEngine.Op.ArithmeticOp d
   def execute!(:sync, this, state, context, options) do
     [h|t] = this.arguments
     {first_arg, state} = Noizu.RuleEngine.ScriptProtocol.execute!(h, state, context, options)
-    cs = this.arithmetic_strategy || :default
+    #cs = this.arithmetic_strategy || :default
     {product, state} = Enum.reduce(t, {first_arg, state},
       fn(child, {left_arg, state}) ->
           {right_arg, state} = Noizu.RuleEngine.ScriptProtocol.execute!(child, state, context, options)

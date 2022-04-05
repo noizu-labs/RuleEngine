@@ -8,8 +8,8 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   def project do
     [app: :noizu_rule_engine,
-     version: "0.2.0",
-     elixir: "~> 1.3",
+     version: "0.2.1",
+     elixir: "~> 1.13",
      package: package(),
      deps: deps(),
      description: "Noizu Rule Engine",
@@ -31,9 +31,11 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.16.2", only: [:dev], optional: true}, # Documentation Provider
+      {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true}, # Documentation Provider
       {:markdown, github: "devinus/markdown", only: [:dev], optional: true}, # Markdown processor for ex_doc
-      {:noizu_core, github: "noizu/ElixirCore", tag: "1.0.11", optional: true},
+      {:noizu_core, github: "noizu/ElixirCore", tag: "1.0.12", optional: true},
+      {:plug, "~> 1.0", optional: true},
+      {:elixir_uuid, "~> 1.2", only: :test, optional: true}
     ]
   end # end deps
 
