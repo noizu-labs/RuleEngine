@@ -8,7 +8,7 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   def project do
     [app: :noizu_rule_engine,
-     version: "0.2.1",
+     version: "0.2.2",
      elixir: "~> 1.13",
      package: package(),
      deps: deps(),
@@ -19,9 +19,9 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   defp package do
     [
-      maintainers: ["noizu"],
+      maintainers: ["noizu", "lacrosse"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/noizu/RuleEngine"}
+      links: %{"GitHub" => "https://github.com/lacrossetech-lib/RuleEngine"}
     ]
   end # end package
 
@@ -32,8 +32,8 @@ defmodule Noizu.RuleEngine.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true}, # Documentation Provider
-      {:markdown, github: "devinus/markdown", only: [:dev], optional: true}, # Markdown processor for ex_doc
-      {:noizu_core, github: "noizu/ElixirCore", tag: "1.0.12", optional: true},
+      {:markdown, github: "devinus/markdown", ref: "d065dbc", only: [:dev], optional: true}, # Markdown processor for ex_doc
+      {:noizu_core, github: "lacrossetech-lib/ElixirCore", tag: "1.0.27"},
       {:plug, "~> 1.0", optional: true},
       {:elixir_uuid, "~> 1.2", only: :test, optional: true}
     ]
@@ -41,7 +41,7 @@ defmodule Noizu.RuleEngine.Mixfile do
 
   defp docs do
     [
-      source_url_pattern: "https://github.com/noizu/RuleEngine/blob/master/%{path}#L%{line}",
+      source_url_pattern: "https://github.com/lacrossetech-lib/RuleEngine/blob/master/%{path}#L%{line}",
       extras: ["README.md"]
     ]
   end # end docs
