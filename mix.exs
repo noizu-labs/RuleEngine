@@ -26,13 +26,12 @@ defmodule Noizu.RuleEngine.Mixfile do
   end # end package
 
   def application do
-    [ applications: [:logger] ]
+    [ applications: [:logger] ++ (Mix.env in [:dev, :test] && [:ex_doc] || []) ]
   end # end application
 
   defp deps do
     [
-      {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true}, # Documentation Provider
-      {:markdown, github: "devinus/markdown", only: [:dev], optional: true}, # Markdown processor for ex_doc
+      {:ex_doc, "~> 0.28.3", only: [:dev, :test], runtime: false}, # Documentation Provider
       {:noizu_core, "~> 1.0"},
       {:plug, "~> 1.0", optional: true},
       {:elixir_uuid, "~> 1.2", only: :test, optional: true}
